@@ -1,32 +1,40 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scenario Validator</title>
+    <title>Validation Results</title>
 </head>
 <body>
-    <h1>Scenario Validator</h1>
-
     <table border="1">
         <tr>
+            <th>No</th>
             <th>Scenario</th>
             <th>HTTP Status</th>
             <th>Response Code</th>
             <th>Response Message</th>
             <th>Passed</th>
-            <th>Validation</th>
+            <th>Schema</th>
+            <th>Response</th>  <!-- Add a new column for the message content -->
         </tr>
-        
+
         {% for data in compared_data %}
         <tr>
-            <td>{{ data['scenario'] }}</td>
-            <td>{{ data['http_status'] }}</td>
-            <td>{{ data['error_code'] }}</td>
-            <td>{{ data['error_message'] }}</td>
-            <td>{{ "Passed" if data['passed'] else "Not Passed" }}</td>
-            <td>{{ data['validation'] }}</td>
-            <!-- <td>{{ data['message_content'] }}</td> -->
+            <td>{{ loop.index }}</td>
+            <td>{{ data.scenario }}</td>
+            <td>{{ data.http_status}}</td>
+            <td>{{ data.response_code}}</td>
+            <td>{{ data.response_message}}</td>
+            <td>
+                {% if data.Validation[0] != "Validation successful." %}
+                Failed Errors:
+                {% endif %}
+                <ul>
+                {% for validation in data.Validation %}
+                    <li>{{ validation }}</li>
+                {% endfor %}
+                </ul>
+            </td>
+            <td><pre>{{ data.Schema }}</pre></td>  <!-- Display the formatted schema -->
+            <td><pre>{{ data['Response'] }}</pre></td>  <!-- Display the formatted message content -->
         </tr>
         {% endfor %}
     </table>
