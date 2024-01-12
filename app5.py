@@ -40,25 +40,6 @@ def display_data():
         cursor.execute(query)
         rows = cursor.fetchall()
 
-        schema_data = []
-        dict_schema_data = dict(schema_data)
-        for schema in schemas:
-            schema_http_status, schema_scenario, schemas_dict = schema
-            try:
-                schema_response_code = schemas_dict.get('properties')['responseCode']['const']
-                schema_response_message = schemas_dict.get('properties')['responseMessage']['const']
-                
-                schema_data.append({
-                    'http_status': schema_http_status,
-                    'response_code': schema_response_code,
-                    'response_message': schema_response_message,
-                    'scenario' : schema_scenario
-                })
-            except Exception as e:
-                print(f"Error processing schema data for : {e}")
-        
-        print(type(dict_schema_data))
-
         logs_data = []
         for row in rows:
             logs_http_status, message_content_dict = row
@@ -75,10 +56,11 @@ def display_data():
                 print(f"Error processing logs data for : {e}")
 
         compared_data = []
-        for schema_data_dict in dict_schema_data:
-            http_status_schema = schema_data_dict.get('http_status')
-            response_code_schema = schema_data_dict.get('response_code')
-            response_message_schema = schema_data_dict.get('response_message')
+        for schema in schemas:
+            http_status_schema = schema[0]
+            scenario_schema = schema[2]
+            response_code_schema = schema[1].get('properties')['responseCode']['const']
+            response_message_schema = schema[1].get('properties')['responseMessage']['const']
             found_match = False
 
             for logs_data_dict in logs_data:
@@ -89,7 +71,7 @@ def display_data():
                 if http_status_schema == http_status_logs and response_code_schema == response_code_logs and response_message_schema == response_message_logs:
                     compared_data.append({
                         'http_status' : http_status_schema,
-                        'scenario' : schema_scenario,
+                        'scenario' : scenario_schema,
                         'response_code' : response_code_schema,
                         'response_message' : response_message_schema,
                         "Passed" : True
@@ -100,7 +82,7 @@ def display_data():
             if not found_match:
                 compared_data.append({
                     'http_status' : http_status_schema,
-                    'scenario' : "Not Found",
+                    'scenario' : scenario_schema,
                     'response_code' : response_code_schema,
                     'response_message' : response_message_schema,
                     "Passed" : False
