@@ -64,9 +64,19 @@ def display_data():
             found_match = False
 
             for logs_data_dict in logs_data:
+                validation_result = []
                 http_status_logs = logs_data_dict.get('http_status')
                 response_code_logs = logs_data_dict.get('response_code')
                 response_message_logs = logs_data_dict.get('response_message')
+
+                validator = Draft202012Validator(schema[1])
+                errors = list(validator.iter_errors(logs_data_dict))
+
+                if errors:  
+                     for error in errors:
+                        validation_result.append(error.message)
+                else:
+                    validation_result.append("Validation successful.")
 
                 if http_status_schema == http_status_logs and response_code_schema == response_code_logs and response_message_schema == response_message_logs:
                     compared_data.append({
@@ -74,10 +84,12 @@ def display_data():
                         'scenario' : scenario_schema,
                         'response_code' : response_code_schema,
                         'response_message' : response_message_schema,
-                        "Passed" : True
+                        "Validation" : validation_result,
+                        "Schema" : json.dumps(schema[1], indent=4),
+                        "Response" : json.dumps(logs_data_dict, indent=4)
                     })
                     found_match = True
-                    break
+                    break 
 
             if not found_match:
                 compared_data.append({
@@ -85,7 +97,9 @@ def display_data():
                     'scenario' : scenario_schema,
                     'response_code' : response_code_schema,
                     'response_message' : response_message_schema,
-                    "Passed" : False
+                    "Validation" : validation_result,
+                    "Schema" : json.dumps(schema[1], indent=4),
+                    "Response" : json.dumps(logs_data_dict, indent=4)
                 })
         connection.close()
 
