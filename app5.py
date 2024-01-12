@@ -49,8 +49,8 @@ def display_data():
 
                 logs_data.append({
                     'http_status': logs_http_status,
-                    'response_code': logs_response_code,
-                    'response_message': logs_response_message
+                    'responseCode': logs_response_code,
+                    'responseMessage': logs_response_message
                 })
             except Exception as e:
                 print(f"Error processing logs data for : {e}")
@@ -65,9 +65,10 @@ def display_data():
 
             for logs_data_dict in logs_data:
                 validation_result = []
+
                 http_status_logs = logs_data_dict.get('http_status')
-                response_code_logs = logs_data_dict.get('response_code')
-                response_message_logs = logs_data_dict.get('response_message')
+                response_code_logs = logs_data_dict.get('responseCode')
+                response_message_logs = logs_data_dict.get('responseMessage')
 
                 validator = Draft202012Validator(schema[1])
                 errors = list(validator.iter_errors(logs_data_dict))
@@ -79,6 +80,7 @@ def display_data():
                     validation_result.append("Validation successful.")
 
                 if http_status_schema == http_status_logs and response_code_schema == response_code_logs and response_message_schema == response_message_logs:
+                    print(logs_data_dict)
                     compared_data.append({
                         'http_status' : http_status_schema,
                         'scenario' : scenario_schema,
@@ -87,6 +89,7 @@ def display_data():
                         "Validation" : validation_result,
                         "Schema" : json.dumps(schema[1], indent=4),
                         "Response" : json.dumps(logs_data_dict, indent=4)
+                        # "Response" : logs_data_dict.get('message_content')
                     })
                     found_match = True
                     break 
@@ -100,6 +103,7 @@ def display_data():
                     "Validation" : validation_result,
                     "Schema" : json.dumps(schema[1], indent=4),
                     "Response" : json.dumps(logs_data_dict, indent=4)
+                    # "Response" : logs_data_dict.get('message_content')
                 })
         connection.close()
 
