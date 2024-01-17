@@ -61,7 +61,7 @@ def get_log_emails():
 #List of all routes
 @app.route("/", methods=['GET'])
 def index():
-    return render_template('index.html')
+    return render_template('main.html')
 
 #List of Compare feature routes
 @app.route("/compare/get_schema", methods=['GET'])
@@ -83,7 +83,7 @@ def compare():
         errors = [error.message for error in v.iter.errors(json.loads(data))]
         if not errors:
             errors = ["Validation Successful."]
-    return render_template('compare1.html', errors=errors, data=data, schemas_compare=schemas_compare, schema=json.dumps(schema, indent=4))
+    return render_template('compare.html', errors=errors, data=data, schemas_compare=schemas_compare, schema=json.dumps(schema, indent=4))
 
 #List of Bulk Validator feature routes
 @app.route("/bulk_validator", methods=['GET', 'POST'])
@@ -160,7 +160,7 @@ def display_data():
         emails = [row[0] for row in cur.fetchall()]
         conn.close()
 
-        return render_template('schema1.html', compared_data=compared_data, emails=emails)
+        return render_template('schema.html', compared_data=compared_data, emails=emails)
     
     except Exception as e:
         print(f"Error connecting to database : {e}")
@@ -240,7 +240,7 @@ def validate_email():
 
         conn.close()
 
-        return render_template('schema1.html', compared_data=compared_data, emails=emails)
+        return render_template('schema.html', compared_data=compared_data, emails=emails)
 
     except Exception as e:
         print(f"Error connecting to database : {e}")
@@ -258,7 +258,7 @@ def get_logs(email):
     cur.execute("SELECT * FROM message_logs WHERE email = %s", (email,))
     logs = [dict(row) for row in cur.fetchall()]
 
-    return render_template('validator1.html', logs=jsonify(logs))
+    return render_template('validator.html', logs=jsonify(logs))
     
 if __name__ == '__main__':
     app.run(debug=True)
