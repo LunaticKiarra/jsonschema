@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON Schema Validator</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <style>
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <a href="/" class="btn btn-primary">Home</a>
+    <div class="container">
+        <h1 class="mt-4 mb-4">JSON Schema Validator</h1>
+        <form method="POST">
+            <div class="form-group">
+                <label for="scenario">Scenario</label>
+                <select id="scenario" name="scenario" class="form-control">
+                    {% for scenario in schemas.keys() %}
+                        <option value="{{ scenario }}">{{ scenario }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <label for="schema">Schema</label>
+                        <textarea id="schema" class="form-control" rows="30">{{ schema }}</textarea> 
+                </div>
+                <div class="col">
+                    <label for="data">Data</label>
+                    <textarea id="data" name="data" class="form-control" rows="30">{{ data }}</textarea>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary mt-3">Validate</button>
+        </form>
+        <div id="errors" class="mt-4">
+            {% for error in errors %}
+                <p class="error">{{ error }}</p>
+            {% endfor %}
+        </div>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+    $(document).ready(function(){
+        $('#scenario').change(function(){
+            $.getJSON('/get_schema', {scenario: $(this).val()}, function(data){
+                var parsed = JSON.parse(data);
+                $('#schema').text(JSON.stringify(parsed, null, 4));
+            });
+        });
+    });
+    </script>
+</body>
+</html>
