@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Partner's Logs</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet">
+</head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 14px; /* Adjust this to make the font smaller or larger */
+        }
+        #emailDropdown {
+            width: 200px;
+            height: 30px;
+            margin-bottom: 20px;
+        }
+        #logsTable {
+            width: 100%;
+            border-collapse: collapse;
+            /* table-layout: fixed; This makes the columns equal width */
+        }
+        #logsTable th, #logsTable td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            min-width: 150px;
+            word-wrap: break-word; /* This will prevent the table from stretching if the content is too long */
+            white-space: pre-wrap; /* Allow line breaks in the text */
+        }
+        #logsTable th {
+            background-color: #f2f2f2;
+            color: black;
+        }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+    <a href="/" class="btn btn-primary">Home</a>
+    <h1>Partner's Logs</h1>
+    <label for="emailDropdown">Partner</label>
+    <select id="emailDropdown">
+        <!-- Options will be filled in by JavaScript -->
+    </select>
+
+    <p id="logsCount"></p>
+
+    <table id="logsTable">
+        <!-- Table rows will be filled in by JavaScript -->
+    </table>
+
+    <script>
+        // Define the column names in the order you want them to appear
+        const columnNames = ['created_at', 'updated_at', 'proxy_name', 'proxy_url', 'email', 'client_ip', 'dev_apps','product', 'req_verb', 'req_header', 'req_body', 'resp_header', 'resp_body', 'http_status', 'message_content' ];  // Replace these with your actual column names
+
+        // Fetch the emails and fill in the dropdown options
+        $(document).ready(function(){
+            $.get('/emails', function(emails){
+                emails.forEach(email => {
+                    $('#emailDropdown').append(new Option(email, email));
+                });
+            });
+    
+        // Add an event listener to the dropdown to fetch and display the logs when an email is selected
+        $('#emailDropdown').change(function(){
+            $.get('/logs/' + $(this).val(), function(logs){
+                console.log(logs); // Debug: log the fetched logs
+                $('#logsTable').empty();  // Clear the table
+
+                // Update the logs count
+                $('#logsCount').text("This partner has " + logs.length + " logs");
+
+                if (logs.length > 0) {
+                    // Create the table headers
+                    let headers = $('<tr></tr>');
+                    headers.append($('<th></th>').text('#'));  // Added a new header for numbering
+                    columnNames.forEach(columnName => {
+                        if (!['id', 'deleted_at', 'client_sign', 'resp_time'].includes(columnName)) {
+                            headers.append($('<th></th>').text(columnName));
+                        }
+                    });
+                    $('#logsTable').append(headers);
+
+                    // Create the table rows
+                    logs.forEach((log, index) => {
+                        let row = $('<tr></tr>');
+                        row.append($('<td></td>').text(index + 1));  // Added a new cell for numbering
+                        columnNames.forEach(columnName => {
+                            if (!['id', 'deleted_at', 'client_sign', 'resp_time'].includes(columnName)) {
+                                let value = log[columnName];
+                                let text = typeof value === 'object' && value !== null ? '<pre>' + JSON.stringify(value, null, 2) + '</pre>' : value;
+                                row.append($('<td></td>').html(text));
+                            }
+                        });
+                        $('#logsTable').append(row);
+                    });
+                }
+            }).fail(function(jqXHR, textStatus, errorThrown) {
+                console.log("Request failed: " + textStatus + ", " + errorThrown); // Debug: log if the request fails
+            });
+        });
+    });
+    </script>
+</body>
+</html>
