@@ -119,10 +119,11 @@ def validate_email():
                     logs_response_message = message_content_dict.get('responseMessage')
                     timestamp = created_at.strftime("%Y-%m-%d %H:%M:%S")
                     message_content = json.dumps(message_content_dict, indent=4)
-                    
+                    message_content_validator = message_content_dict
 
                     logs_data.append({
                         'message_id': message_id,
+                        'message_content_validator' : message_content_validator,
                         'message_content': message_content,
                         'http_status': logs_http_status,
                         'responseCode': logs_response_code,
@@ -150,7 +151,7 @@ def validate_email():
                 response_message_logs = logs_data_dict.get('responseMessage')
 
                 validator = Draft202012Validator(schema[2])
-                errors = list(validator.iter_errors(logs_data_dict))
+                errors = list(validator.iter_errors(logs_data_dict.get('message_content_validator')))
 
                 if errors:
                     for error in errors:
